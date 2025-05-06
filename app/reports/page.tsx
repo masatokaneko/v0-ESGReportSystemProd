@@ -4,17 +4,35 @@ import { useState } from "react"
 import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2, FileText, FileSpreadsheet, Download, Calendar } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, FileText, FileSpreadsheet, Download } from "lucide-react"
 
 export default function ReportsPage() {
-  const [reportType, setReportType] = useState("ghg")
-  const [reportFormat, setReportFormat] = useState("pdf")
-  const [reportPeriod, setReportPeriod] = useState("2023FY")
+  const [activeTab, setActiveTab] = useState("report")
   const [isGenerating, setIsGenerating] = useState(false)
   const { toast } = useToast()
+
+  // レポート生成用の状態
+  const [reportType, setReportType] = useState("")
+  const [reportPeriod, setReportPeriod] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([])
+  const [includeGraphs, setIncludeGraphs] = useState(false)
+  const [includePrevYearComparison, setIncludePrevYearComparison] = useState(false)
+
+  // データエクスポート用の状態
+  const [exportFormat, setExportFormat] = useState("excel")
+  const [exportStartDate, setExportStartDate] = useState("")
+  const [exportEndDate, setExportEndDate] = useState("")
+  const [exportLocations, setExportLocations] = useState<string[]>([])
+  const [exportDepartments, setExportDepartments] = useState<string[]>([])
+  const [includeRawData, setIncludeRawData] = useState(false)
+  const [includeSummarySheet, setIncludeSummarySheet] = useState(false)
 
   const handleGenerateReport = () => {
     setIsGenerating(true)
@@ -24,301 +42,239 @@ export default function ReportsPage() {
       setIsGenerating(false)
       toast({
         title: "レポート生成完了",
-        description: `${getReportTypeName(reportType)}レポートが正常に生成されました`,
+        description: "レポートが正常に生成されました",
       })
     }, 2000)
   }
 
-  const getReportTypeName = (type: string) => {
-    switch (type) {
-      case "ghg":
-        return "温室効果ガス排出量"
-      case "energy":
-        return "エネルギー使用量"
-      case "water":
-        return "水使用量"
-      case "waste":
-        return "廃棄物排出量"
-      case "compliance":
-        return "コンプライアンス"
-      default:
-        return type
+  const handleExportData = () => {
+    setIsGenerating(true)
+
+    // 実際の実装ではAPIエンドポイントにリクエストを送信
+    setTimeout(() => {
+      setIsGenerating(false)
+      toast({
+        title: "データエクスポート完了",
+        description: "データが正常にエクスポートされました",
+      })
+    }, 2000)
+  }
+
+  const toggleLocation = (location: string) => {
+    if (activeTab === "report") {
+      setSelectedLocations((prev) =>
+        prev.includes(location) ? prev.filter((loc) => loc !== location) : [...prev, location],
+      )
+    } else {
+      setExportLocations((prev) =>
+        prev.includes(location) ? prev.filter((loc) => loc !== location) : [...prev, location],
+      )
     }
   }
 
-  const getReportFormatIcon = (format: string) => {
-    switch (format) {
-      case "pdf":
-        return <FileText className="h-5 w-5" />
-      case "excel":
-        return <FileSpreadsheet className="h-5 w-5" />
-      case "csv":
-        return <FileText className="h-5 w-5" />
-      default:
-        return <FileText className="h-5 w-5" />
-    }
+  const toggleDepartment = (department: string) => {
+    setExportDepartments((prev) =>
+      prev.includes(department) ? prev.filter((dep) => dep !== department) : [...prev, department],
+    )
   }
 
   return (
     <DashboardLayout allowedRoles={["reviewer", "admin"]}>
       <div className="flex flex-col gap-6">
-        <h1 className="text-2xl font-bold">レポート生成</h1>
+        <h1 className="text-2xl font-bold">レポート出力</h1>
 
-        <Tabs defaultValue="standard" className="w-full">
+        <Tabs defaultValue="report" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="standard">標準レポート</TabsTrigger>
-            <TabsTrigger value="custom">カスタムレポート</TabsTrigger>
+            <TabsTrigger value="report">レポート生成</TabsTrigger>
+            <TabsTrigger value="export">データエクスポート</TabsTrigger>
           </TabsList>
-          <TabsContent value="standard" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>温室効果ガス排出量レポート</CardTitle>
-                  <CardDescription>Scope 1, 2, 3の温室効果ガス排出量の詳細レポート</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">期間</label>
-                      <Select defaultValue="2023FY">
-                        <SelectTrigger>
-                          <SelectValue placeholder="期間を選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2023Q1">2023年 Q1</SelectItem>
-                          <SelectItem value="2023Q2">2023年 Q2</SelectItem>
-                          <SelectItem value="2023Q3">2023年 Q3</SelectItem>
-                          <SelectItem value="2023Q4">2023年 Q4</SelectItem>
-                          <SelectItem value="2023FY">2023年度 通年</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">フォーマット</label>
-                      <Select defaultValue="pdf">
-                        <SelectTrigger>
-                          <SelectValue placeholder="フォーマットを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pdf">PDF</SelectItem>
-                          <SelectItem value="excel">Excel</SelectItem>
-                          <SelectItem value="csv">CSV</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full gap-2">
-                    <Download className="h-4 w-4" />
-                    レポート生成
-                  </Button>
-                </CardFooter>
-              </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>エネルギー使用量レポート</CardTitle>
-                  <CardDescription>拠点別・エネルギー種別の使用量レポート</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">期間</label>
-                      <Select defaultValue="2023FY">
-                        <SelectTrigger>
-                          <SelectValue placeholder="期間を選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2023Q1">2023年 Q1</SelectItem>
-                          <SelectItem value="2023Q2">2023年 Q2</SelectItem>
-                          <SelectItem value="2023Q3">2023年 Q3</SelectItem>
-                          <SelectItem value="2023Q4">2023年 Q4</SelectItem>
-                          <SelectItem value="2023FY">2023年度 通年</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">フォーマット</label>
-                      <Select defaultValue="excel">
-                        <SelectTrigger>
-                          <SelectValue placeholder="フォーマットを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pdf">PDF</SelectItem>
-                          <SelectItem value="excel">Excel</SelectItem>
-                          <SelectItem value="csv">CSV</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full gap-2">
-                    <Download className="h-4 w-4" />
-                    レポート生成
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>水使用量レポート</CardTitle>
-                  <CardDescription>拠点別の水使用量と排水量のレポート</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">期間</label>
-                      <Select defaultValue="2023FY">
-                        <SelectTrigger>
-                          <SelectValue placeholder="期間を選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2023Q1">2023年 Q1</SelectItem>
-                          <SelectItem value="2023Q2">2023年 Q2</SelectItem>
-                          <SelectItem value="2023Q3">2023年 Q3</SelectItem>
-                          <SelectItem value="2023Q4">2023年 Q4</SelectItem>
-                          <SelectItem value="2023FY">2023年度 通年</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">フォーマット</label>
-                      <Select defaultValue="pdf">
-                        <SelectTrigger>
-                          <SelectValue placeholder="フォーマットを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pdf">PDF</SelectItem>
-                          <SelectItem value="excel">Excel</SelectItem>
-                          <SelectItem value="csv">CSV</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full gap-2">
-                    <Download className="h-4 w-4" />
-                    レポート生成
-                  </Button>
-                </CardFooter>
-              </Card>
-            </div>
-          </TabsContent>
-          <TabsContent value="custom">
+          {/* レポート生成タブ */}
+          <TabsContent value="report" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>カスタムレポート生成</CardTitle>
-                <CardDescription>必要な情報を選択して、カスタムレポートを生成します</CardDescription>
+                <CardTitle>ESGレポート生成</CardTitle>
+                <CardDescription>期間や対象範囲を選択して、定型フォーマットのESGレポートを生成します。</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">レポートタイプ</label>
-                      <Select value={reportType} onValueChange={setReportType}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="レポートタイプを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="ghg">温室効果ガス排出量</SelectItem>
-                          <SelectItem value="energy">エネルギー使用量</SelectItem>
-                          <SelectItem value="water">水使用量</SelectItem>
-                          <SelectItem value="waste">廃棄物排出量</SelectItem>
-                          <SelectItem value="compliance">コンプライアンス</SelectItem>
-                        </SelectContent>
-                      </Select>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium block mb-2">レポートタイプ</label>
+                        <Select value={reportType} onValueChange={setReportType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="レポートタイプを選択" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="summary">サマリーレポート</SelectItem>
+                            <SelectItem value="detailed">詳細レポート</SelectItem>
+                            <SelectItem value="investor">投資家向けレポート</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">生成するレポートの種類を選択してください。</p>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium block mb-2">期間</label>
+                        <Select value={reportPeriod} onValueChange={setReportPeriod}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="期間を選択" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="custom">カスタム期間</SelectItem>
+                            <SelectItem value="2023Q1">2023年 Q1</SelectItem>
+                            <SelectItem value="2023Q2">2023年 Q2</SelectItem>
+                            <SelectItem value="2023Q3">2023年 Q3</SelectItem>
+                            <SelectItem value="2023Q4">2023年 Q4</SelectItem>
+                            <SelectItem value="2023FY">2023年度 通年</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">レポートの対象期間を選択してください。</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium block mb-2">開始日</label>
+                          <Input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            disabled={reportPeriod !== "custom"}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium block mb-2">終了日</label>
+                          <Input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            disabled={reportPeriod !== "custom"}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">期間</label>
-                      <Select value={reportPeriod} onValueChange={setReportPeriod}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="期間を選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="2023Q1">2023年 Q1</SelectItem>
-                          <SelectItem value="2023Q2">2023年 Q2</SelectItem>
-                          <SelectItem value="2023Q3">2023年 Q3</SelectItem>
-                          <SelectItem value="2023Q4">2023年 Q4</SelectItem>
-                          <SelectItem value="2023FY">2023年度 通年</SelectItem>
-                          <SelectItem value="custom">カスタム期間</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium block mb-2">対象拠点</label>
+                        <p className="text-xs text-muted-foreground mb-2">レポートに含める拠点を選択してください。</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="tokyo"
+                              checked={selectedLocations.includes("tokyo")}
+                              onCheckedChange={() => toggleLocation("tokyo")}
+                            />
+                            <label htmlFor="tokyo" className="text-sm">
+                              東京本社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="osaka"
+                              checked={selectedLocations.includes("osaka")}
+                              onCheckedChange={() => toggleLocation("osaka")}
+                            />
+                            <label htmlFor="osaka" className="text-sm">
+                              大阪支社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="nagoya"
+                              checked={selectedLocations.includes("nagoya")}
+                              onCheckedChange={() => toggleLocation("nagoya")}
+                            />
+                            <label htmlFor="nagoya" className="text-sm">
+                              名古屋支社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="fukuoka"
+                              checked={selectedLocations.includes("fukuoka")}
+                              onCheckedChange={() => toggleLocation("fukuoka")}
+                            />
+                            <label htmlFor="fukuoka" className="text-sm">
+                              福岡支社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="sapporo"
+                              checked={selectedLocations.includes("sapporo")}
+                              onCheckedChange={() => toggleLocation("sapporo")}
+                            />
+                            <label htmlFor="sapporo" className="text-sm">
+                              札幌支社
+                            </label>
+                          </div>
+                        </div>
+                      </div>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">フォーマット</label>
-                      <Select value={reportFormat} onValueChange={setReportFormat}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="フォーマットを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pdf">PDF</SelectItem>
-                          <SelectItem value="excel">Excel</SelectItem>
-                          <SelectItem value="csv">CSV</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-2 pt-4">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="include-graphs"
+                            checked={includeGraphs}
+                            onCheckedChange={(checked) => setIncludeGraphs(!!checked)}
+                          />
+                          <div>
+                            <label htmlFor="include-graphs" className="text-sm font-medium">
+                              グラフを含める
+                            </label>
+                            <p className="text-xs text-muted-foreground">
+                              排出量の推移や内訳を視覚的に表示するグラフを含めます。
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="include-prev-year"
+                            checked={includePrevYearComparison}
+                            onCheckedChange={(checked) => setIncludePrevYearComparison(!!checked)}
+                          />
+                          <div>
+                            <label htmlFor="include-prev-year" className="text-sm font-medium">
+                              前年比較を含める
+                            </label>
+                            <p className="text-xs text-muted-foreground">前年同期間との比較データを含めます。</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">拠点</label>
-                      <Select defaultValue="all">
-                        <SelectTrigger>
-                          <SelectValue placeholder="拠点を選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">すべての拠点</SelectItem>
-                          <SelectItem value="tokyo">東京本社</SelectItem>
-                          <SelectItem value="osaka">大阪支社</SelectItem>
-                          <SelectItem value="nagoya">名古屋工場</SelectItem>
-                          <SelectItem value="fukuoka">福岡営業所</SelectItem>
-                          <SelectItem value="sapporo">札幌営業所</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">グラフ表示</label>
-                      <Select defaultValue="include">
-                        <SelectTrigger>
-                          <SelectValue placeholder="グラフ表示" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="include">グラフを含める</SelectItem>
-                          <SelectItem value="exclude">グラフを含めない</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">比較データ</label>
-                      <Select defaultValue="previous">
-                        <SelectTrigger>
-                          <SelectValue placeholder="比較データ" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">比較なし</SelectItem>
-                          <SelectItem value="previous">前年同期比</SelectItem>
-                          <SelectItem value="target">目標値比</SelectItem>
-                        </SelectContent>
-                      </Select>
+                  <div>
+                    <h3 className="text-sm font-medium mb-4">レポートプレビュー</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="border rounded-md p-4 flex flex-col items-center justify-center text-center">
+                        <FileText className="h-12 w-12 text-primary mb-2" />
+                        <h4 className="text-sm font-medium">サマリーレポート</h4>
+                        <p className="text-xs text-muted-foreground">PDF形式</p>
+                      </div>
+                      <div className="border rounded-md p-4 flex flex-col items-center justify-center text-center">
+                        <FileText className="h-12 w-12 text-primary mb-2" />
+                        <h4 className="text-sm font-medium">詳細レポート</h4>
+                        <p className="text-xs text-muted-foreground">PDF形式</p>
+                      </div>
+                      <div className="border rounded-md p-4 flex flex-col items-center justify-center text-center">
+                        <FileText className="h-12 w-12 text-primary mb-2" />
+                        <h4 className="text-sm font-medium">投資家向けレポート</h4>
+                        <p className="text-xs text-muted-foreground">PDF形式</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <div className="flex items-center gap-2">
-                  {getReportFormatIcon(reportFormat)}
-                  <span className="text-sm text-muted-foreground">
-                    {getReportTypeName(reportType)}レポート ({reportFormat.toUpperCase()})
-                  </span>
-                </div>
-                <Button onClick={handleGenerateReport} disabled={isGenerating}>
+                <Button variant="outline">キャンセル</Button>
+                <Button
+                  onClick={handleGenerateReport}
+                  disabled={isGenerating || !reportType || !reportPeriod || selectedLocations.length === 0}
+                >
                   {isGenerating ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -333,50 +289,241 @@ export default function ReportsPage() {
                 </Button>
               </CardFooter>
             </Card>
+          </TabsContent>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-4">最近生成したレポート</h3>
-              <div className="space-y-2">
-                {[
-                  {
-                    name: "温室効果ガス排出量レポート_2023FY.pdf",
-                    date: "2023-05-15",
-                    format: "pdf",
-                  },
-                  {
-                    name: "エネルギー使用量レポート_2023Q1.xlsx",
-                    date: "2023-04-10",
-                    format: "excel",
-                  },
-                  {
-                    name: "水使用量レポート_2023Q1.pdf",
-                    date: "2023-04-05",
-                    format: "pdf",
-                  },
-                  {
-                    name: "廃棄物排出量レポート_2022FY.csv",
-                    date: "2023-03-20",
-                    format: "csv",
-                  },
-                ].map((report, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded-md bg-white">
-                    <div className="flex items-center">
-                      {getReportFormatIcon(report.format)}
-                      <span className="ml-2 text-sm font-medium">{report.name}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="h-4 w-4 mr-1" />
-                        {report.date}
+          {/* データエクスポートタブ */}
+          <TabsContent value="export" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>データエクスポート</CardTitle>
+                <CardDescription>登録されたESGデータをCSVやExcel形式でエクスポートします。</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-sm font-medium block mb-2">エクスポート形式</label>
+                    <Select value={exportFormat} onValueChange={setExportFormat}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="形式を選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="excel">Excel (.xlsx)</SelectItem>
+                        <SelectItem value="csv">CSV</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">データのエクスポート形式を選択してください。</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium block mb-2">開始日</label>
+                          <Input
+                            type="date"
+                            value={exportStartDate}
+                            onChange={(e) => setExportStartDate(e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium block mb-2">終了日</label>
+                          <Input type="date" value={exportEndDate} onChange={(e) => setExportEndDate(e.target.value)} />
+                        </div>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
+
+                      <div>
+                        <label className="text-sm font-medium block mb-2">対象拠点</label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          エクスポートに含める拠点を選択してください。
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="tokyo-export"
+                              checked={exportLocations.includes("tokyo")}
+                              onCheckedChange={() => toggleLocation("tokyo")}
+                            />
+                            <label htmlFor="tokyo-export" className="text-sm">
+                              東京本社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="osaka-export"
+                              checked={exportLocations.includes("osaka")}
+                              onCheckedChange={() => toggleLocation("osaka")}
+                            />
+                            <label htmlFor="osaka-export" className="text-sm">
+                              大阪支社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="nagoya-export"
+                              checked={exportLocations.includes("nagoya")}
+                              onCheckedChange={() => toggleLocation("nagoya")}
+                            />
+                            <label htmlFor="nagoya-export" className="text-sm">
+                              名古屋支社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="fukuoka-export"
+                              checked={exportLocations.includes("fukuoka")}
+                              onCheckedChange={() => toggleLocation("fukuoka")}
+                            />
+                            <label htmlFor="fukuoka-export" className="text-sm">
+                              福岡支社
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="sapporo-export"
+                              checked={exportLocations.includes("sapporo")}
+                              onCheckedChange={() => toggleLocation("sapporo")}
+                            />
+                            <label htmlFor="sapporo-export" className="text-sm">
+                              札幌支社
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium block mb-2">対象部門</label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          エクスポートに含める部門を選択してください（未選択の場合はすべての部門）
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="soumu"
+                              checked={exportDepartments.includes("soumu")}
+                              onCheckedChange={() => toggleDepartment("soumu")}
+                            />
+                            <label htmlFor="soumu" className="text-sm">
+                              総務部
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="eigyou"
+                              checked={exportDepartments.includes("eigyou")}
+                              onCheckedChange={() => toggleDepartment("eigyou")}
+                            />
+                            <label htmlFor="eigyou" className="text-sm">
+                              営業部
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="seizo"
+                              checked={exportDepartments.includes("seizo")}
+                              onCheckedChange={() => toggleDepartment("seizo")}
+                            />
+                            <label htmlFor="seizo" className="text-sm">
+                              製造部
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="kaihatsu"
+                              checked={exportDepartments.includes("kaihatsu")}
+                              onCheckedChange={() => toggleDepartment("kaihatsu")}
+                            />
+                            <label htmlFor="kaihatsu" className="text-sm">
+                              研究開発部
+                            </label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="system"
+                              checked={exportDepartments.includes("system")}
+                              onCheckedChange={() => toggleDepartment("system")}
+                            />
+                            <label htmlFor="system" className="text-sm">
+                              情報システム部
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-4">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="include-raw"
+                            checked={includeRawData}
+                            onCheckedChange={(checked) => setIncludeRawData(!!checked)}
+                          />
+                          <div>
+                            <label htmlFor="include-raw" className="text-sm font-medium">
+                              生データを含める
+                            </label>
+                            <p className="text-xs text-muted-foreground">各拠点・部門の詳細な活動データを含めます。</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="include-summary"
+                            checked={includeSummarySheet}
+                            onCheckedChange={(checked) => setIncludeSummarySheet(!!checked)}
+                          />
+                          <div>
+                            <label htmlFor="include-summary" className="text-sm font-medium">
+                              サマリーシートを含める
+                            </label>
+                            <p className="text-xs text-muted-foreground">
+                              集計データを含むサマリーシートを追加します。
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium mb-4">エクスポートプレビュー</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="border rounded-md p-4 flex flex-col items-center justify-center text-center">
+                        <FileSpreadsheet className="h-12 w-12 text-primary mb-2" />
+                        <h4 className="text-sm font-medium">Excel形式</h4>
+                        <p className="text-xs text-muted-foreground">.xlsx</p>
+                      </div>
+                      <div className="border rounded-md p-4 flex flex-col items-center justify-center text-center">
+                        <FileText className="h-12 w-12 text-primary mb-2" />
+                        <h4 className="text-sm font-medium">CSV形式</h4>
+                        <p className="text-xs text-muted-foreground">.csv</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button variant="outline">キャンセル</Button>
+                <Button
+                  onClick={handleExportData}
+                  disabled={
+                    isGenerating || !exportFormat || !exportStartDate || !exportEndDate || exportLocations.length === 0
+                  }
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      エクスポート中...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      データエクスポート
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

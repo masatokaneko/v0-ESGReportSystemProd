@@ -21,6 +21,7 @@ import {
   X,
   Home,
   FileOutput,
+  Database,
 } from "lucide-react"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -40,6 +41,7 @@ export function Sidebar({ className }: SidebarProps) {
     setIsOpen(false)
   }
 
+  // routes配列を修正して、「データ登録」の下に「外部データ取込」を追加します
   const routes = [
     {
       label: "ダッシュボード",
@@ -51,6 +53,12 @@ export function Sidebar({ className }: SidebarProps) {
       label: "データ登録",
       icon: PlusCircle,
       href: "/data/new",
+      roles: ["inputer", "reviewer", "admin"],
+    },
+    {
+      label: "外部データ取込",
+      icon: Database,
+      href: "/data/connectors",
       roles: ["inputer", "reviewer", "admin"],
     },
     {
