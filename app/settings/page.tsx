@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Trash2, Edit, Server, Database } from "lucide-react"
+import { Plus, Trash2, Edit } from "lucide-react"
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState("emission-factors")
@@ -17,11 +17,10 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold">システム設定</h1>
 
         <Tabs defaultValue="emission-factors" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="emission-factors">原単位</TabsTrigger>
             <TabsTrigger value="users">ユーザー</TabsTrigger>
             <TabsTrigger value="locations">拠点</TabsTrigger>
-            <TabsTrigger value="connectors">Connectors</TabsTrigger>
           </TabsList>
 
           <TabsContent value="emission-factors" className="space-y-4">
@@ -289,122 +288,6 @@ export default function SettingsPage() {
                             </Button>
                             <Button variant="ghost" size="icon">
                               <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="connectors" className="space-y-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>データコネクタ</CardTitle>
-                  <CardDescription>外部システムとの連携設定を管理します</CardDescription>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" className="gap-1">
-                    <Server className="h-4 w-4" />
-                    On-Premエージェント
-                  </Button>
-                  <Button className="gap-1">
-                    <Plus className="h-4 w-4" />
-                    コネクタ追加
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>名前</TableHead>
-                      <TableHead>カテゴリ</TableHead>
-                      <TableHead>サンプルデータ</TableHead>
-                      <TableHead>ステータス</TableHead>
-                      <TableHead>同期スケジュール</TableHead>
-                      <TableHead className="text-right">アクション</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {[
-                      {
-                        name: "SAP S/4HANA Cloud",
-                        category: "FinanceERP",
-                        sampleData: ["JournalEntry", "FuelExpense", "Asset"],
-                        status: "接続済み",
-                        schedule: "毎日 00:00",
-                      },
-                      {
-                        name: "Salesforce",
-                        category: "CRM",
-                        sampleData: ["Opportunity", "Contract", "UsageQuantity"],
-                        status: "接続済み",
-                        schedule: "毎時",
-                      },
-                      {
-                        name: "EnergyCAP",
-                        category: "EnergyEMS",
-                        sampleData: ["MeterReading", "Cost", "FuelType"],
-                        status: "未接続",
-                        schedule: "-",
-                      },
-                      {
-                        name: "Google Drive",
-                        category: "Document",
-                        sampleData: ["PDF", "Spreadsheet"],
-                        status: "接続済み",
-                        schedule: "毎週月曜 09:00",
-                      },
-                    ].map((connector, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center">
-                            {connector.category === "FinanceERP" && <Database className="h-4 w-4 mr-2 text-blue-500" />}
-                            {connector.category === "CRM" && <Database className="h-4 w-4 mr-2 text-green-500" />}
-                            {connector.category === "EnergyEMS" && (
-                              <Database className="h-4 w-4 mr-2 text-yellow-500" />
-                            )}
-                            {connector.category === "Document" && <Database className="h-4 w-4 mr-2 text-purple-500" />}
-                            {connector.name}
-                          </div>
-                        </TableCell>
-                        <TableCell>{connector.category}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {connector.sampleData.map((data, i) => (
-                              <span
-                                key={i}
-                                className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-                              >
-                                {data}
-                              </span>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                              connector.status === "接続済み"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
-                            }`}
-                          >
-                            {connector.status}
-                          </span>
-                        </TableCell>
-                        <TableCell>{connector.schedule}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="sm">
-                              編集
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              今すぐ実行
                             </Button>
                           </div>
                         </TableCell>
