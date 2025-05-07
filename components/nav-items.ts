@@ -21,30 +21,30 @@ export const NAV_ITEMS = [
   },
   {
     title: "データ登録",
-    href: "/data-entry",
+    href: "/data-upload",
     icon: FileInput,
     subItems: [
       {
         title: "APIコネクタ",
-        href: "/data-entry/api-connector",
+        href: "/data-upload/connectors/cloud",
       },
       {
         title: "オンプレミスエージェント",
-        href: "/data-entry/on-premise-agent",
+        href: "/data-upload/connectors/agent",
       },
       {
         title: "ファイル/カメラOCR",
-        href: "/data-entry/ocr",
+        href: "/data-upload/ocr",
       },
       {
         title: "CSVインポート",
-        href: "/data-entry/csv-import",
+        href: "/data-upload/csv",
       },
     ],
   },
   {
     title: "データ承認",
-    href: "/data-approval",
+    href: "/data-approvals",
     icon: FileCheck,
   },
   {
