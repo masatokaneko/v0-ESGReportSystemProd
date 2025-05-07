@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EntityType {
+  COMPANY
+  SITE
+  PLANT
+}
+
+enum SourceType {
+  API
+  CSV
+  OCR
+  AGENT
+  MOCK
+}
+
+enum ReportStatus {
+  DRAFT
+  IN_REVIEW
+  ASSURED
+}
+
+enum ReportType {
+  PDF
+  XBRL
+}
+
+model Entity {
+  id          String   @id @default(cuid())
+  name        String
+  type        EntityType
+  parentId    String?
+  parent      Entity?  @relation("EntityHierarchy", fields: [parentId], references: [id])
+  children    Entity[] @relation("EntityHierarchy")
+  kpiData     KpiData[]
+  userAccess  UserEntityAccess[]
+  assuranceRecords AssuranceRecord[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([parentId])
+}
+
+model KpiCategory {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  kpiDefs     KpiDef[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
+
+model KpiDef {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  unit        String
+  categoryId  String
+  category    KpiCategory @relation(fields: [categoryId], references: [id])
+  kpiData     KpiData[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([categoryId])
+}
+
+model KpiData {
+  id          String   @id @default(cuid())
+  kpiId       String
+  kpiDef      KpiDef   @relation(fields: [kpiId], references: [id])
+  entityId    String
+  entity      Entity   @relation(fields: [entityId], references: [id])
+  fiscalYear  Int
+  value       Decimal  @db.Decimal(20, 6)
+  sourceType  SourceType
+  sourceId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@unique([kpiId, entityId, fiscalYear])
+  @@index([fiscalYear])
+  @@index([entityId])
+}
+
+model AssuranceRecord {
+  id          String   @id @default(cuid())
+  reportType  ReportType
+  status      ReportStatus
+  fiscalYear  Int
+  entityId    String
+  entity      Entity   @relation(fields: [entityId], references: [id])
+  assuredBy   String?
+  assuredAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@index([entityId])
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  password    String
+  entityAccess UserEntityAccess[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+}
+
+model UserEntityAccess {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  entityId    String
+  entity      Entity   @relation(fields: [entityId], references: [id])
+  role        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  @@unique([userId, entityId])
+  @@index([userId])
+  @@index([entityId])
+}
+
+// seed file at prisma/seed.ts   (reads lib/mock/* and creates records)

@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ESGレポーティングシステム",
   description: "企業のESG情報を効率的に収集・分析・報告するためのプラットフォーム",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({

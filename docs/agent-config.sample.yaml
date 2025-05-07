@@ -1,0 +1,9 @@
+connection_name: "SCADA_FuelFlow"
+connection_type: opcua
+endpoint_url: "opc.tcp://10.0.0.15:4840"
+node_ids: ["ns=2;s=Fuel_Flow_Rate", "ns=2;s=Boiler_MW"]
+schedule: "rate(5 minutes)"
+parser:
+  mapping:
+    Fuel_Flow_Rate: { kpi_code: "FUEL_FLOW", unit: "kg/h" }
+    Boiler_MW:      { kpi_code: "GEN_CAPACITY_MW", unit: "MW" }
