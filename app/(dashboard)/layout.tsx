@@ -13,15 +13,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // サブメニューを開くべきか判定
   const isMenuOpen = (item: any) => {
-    if (openMenus[item.label] !== undefined) return openMenus[item.label]
-    if (item.children) {
-      return item.children.some((child: any) => child.href && pathname.startsWith(child.href))
+    if (openMenus[item.title] !== undefined) return openMenus[item.title]
+    if (item.subItems) {
+      return item.subItems.some((child: any) => child.href && pathname.startsWith(child.href))
     }
     return false
   }
 
-  const handleToggleMenu = (label: string) => {
-    setOpenMenus((prev) => ({ ...prev, [label]: !prev[label] }))
+  const handleToggleMenu = (title: string) => {
+    setOpenMenus((prev) => ({ ...prev, [title]: !prev[title] }))
   }
 
   return (
@@ -37,41 +37,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <SidebarContent>
             <SidebarMenu>
               {NAV_ITEMS.map((item) => {
-                const Icon = Icons[item.icon as keyof typeof Icons] || Icons.Circle
+                const Icon = item.icon || Icons.Circle
                 const isActive = Boolean(item.href && pathname.startsWith(item.href))
-                const hasChildren = !!item.children
+                const hasChildren = !!item.subItems
                 const open = isMenuOpen(item)
 
                 if (hasChildren) {
                   return (
-                    <SidebarMenuItem key={item.label}>
+                    <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         isActive={isActive || open}
-                        tooltip={item.label}
-                        onClick={() => handleToggleMenu(item.label)}
+                        tooltip={item.title}
+                        onClick={() => handleToggleMenu(item.title)}
                         className="flex justify-between items-center w-full"
                       >
                         <span className="flex items-center gap-2">
                           <Icon className="h-4 w-4" />
-                          <span>{item.label}</span>
+                          <span>{item.title}</span>
                         </span>
                         <span className={`transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
                       </SidebarMenuButton>
                       {open && (
                         <div className="ml-4 mt-2 space-y-1">
-                          {item.children.map((child: any) => {
-                            const ChildIcon = Icons[child.icon as keyof typeof Icons] || Icons.Circle
+                          {item.subItems.map((child: any) => {
                             const isChildActive = Boolean(child.href && pathname.startsWith(child.href))
                             return (
                               <SidebarMenuButton
-                                key={child.label}
+                                key={child.title}
                                 asChild
                                 isActive={isChildActive}
-                                tooltip={child.label}
+                                tooltip={child.title}
                               >
                                 <Link href={child.href || "#"}>
-                                  <ChildIcon className="h-4 w-4" />
-                                  <span>{child.label}</span>
+                                  <span>{child.title}</span>
                                 </Link>
                               </SidebarMenuButton>
                             )
@@ -83,15 +81,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 }
 
                 return (
-                  <SidebarMenuItem key={item.label}>
+                  <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}
-                      tooltip={item.label}
+                      tooltip={item.title}
                     >
                       <Link href={item.href || "#"}>
                         <Icon className="h-4 w-4" />
-                        <span>{item.label}</span>
+                        <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
