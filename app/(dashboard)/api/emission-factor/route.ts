@@ -1,8 +1,33 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+
+// モックデータ
+const mockEmissionFactors = [
+  {
+    id: 1,
+    name: "電力",
+    factor: 0.5,
+    unit: "kWh",
+  },
+  {
+    id: 2,
+    name: "ガス",
+    factor: 2.3,
+    unit: "m³",
+  },
+  {
+    id: 3,
+    name: "ガソリン",
+    factor: 2.32,
+    unit: "L",
+  },
+  {
+    id: 4,
+    name: "軽油",
+    factor: 2.58,
+    unit: "L",
+  },
+];
 
 export async function GET() {
-  const data = await prisma.emissionFactor.findMany();
-  return NextResponse.json(data);
-} 
+  return NextResponse.json(mockEmissionFactors);
+}
