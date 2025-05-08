@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -89,7 +89,7 @@ model KpiData {
   entityId    String
   entity      Entity   @relation(fields: [entityId], references: [id])
   fiscalYear  Int
-  value       Decimal  @db.Decimal(20, 6)
+  value       Float
   sourceType  SourceType
   sourceId    String?
   createdAt   DateTime @default(now())
