@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -209,248 +208,246 @@ export default function SearchPage() {
   }
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-2xl font-bold">データ検索</h1>
-          <Button variant="outline" className="gap-2" onClick={resetFilters}>
-            <Search className="h-4 w-4" />
-            フィルターをリセット
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-2xl font-bold">データ検索</h1>
+        <Button variant="outline" className="gap-2" onClick={resetFilters}>
+          <Search className="h-4 w-4" />
+          フィルターをリセット
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>検索条件</CardTitle>
+          <CardDescription>検索条件を指定して、ESGデータを絞り込みます</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">キーワード</label>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="タイトル、提出者で検索..."
+                  className="pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Scope</label>
+              <Select value={selectedScope} onValueChange={setSelectedScope}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Scopeを選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべて</SelectItem>
+                  <SelectItem value="scope1">Scope 1</SelectItem>
+                  <SelectItem value="scope2">Scope 2</SelectItem>
+                  <SelectItem value="scope3">Scope 3</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">カテゴリ</label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="カテゴリを選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべて</SelectItem>
+                  <SelectItem value="energy">エネルギー</SelectItem>
+                  <SelectItem value="water">水</SelectItem>
+                  <SelectItem value="waste">廃棄物</SelectItem>
+                  <SelectItem value="transport">輸送</SelectItem>
+                  <SelectItem value="procurement">調達</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">拠点</label>
+              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                <SelectTrigger>
+                  <SelectValue placeholder="拠点を選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべて</SelectItem>
+                  <SelectItem value="tokyo">東京本社</SelectItem>
+                  <SelectItem value="osaka">大阪支社</SelectItem>
+                  <SelectItem value="nagoya">名古屋工場</SelectItem>
+                  <SelectItem value="fukuoka">福岡営業所</SelectItem>
+                  <SelectItem value="sapporo">札幌営業所</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">対象期間</label>
+              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                <SelectTrigger>
+                  <SelectValue placeholder="期間を選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべて</SelectItem>
+                  <SelectItem value="2023Q1">2023年 Q1</SelectItem>
+                  <SelectItem value="2023Q2">2023年 Q2</SelectItem>
+                  <SelectItem value="2023Q3">2023年 Q3</SelectItem>
+                  <SelectItem value="2023Q4">2023年 Q4</SelectItem>
+                  <SelectItem value="2023FY">2023年度 通年</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">ステータス</label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="ステータスを選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべて</SelectItem>
+                  <SelectItem value="draft">下書き</SelectItem>
+                  <SelectItem value="pending">承認待ち</SelectItem>
+                  <SelectItem value="approved">承認済み</SelectItem>
+                  <SelectItem value="rejected">差戻し</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="rounded-md border bg-white">
+        <div className="flex justify-between items-center p-4 border-b">
+          <div className="text-sm text-muted-foreground">{filteredData.length}件のデータが見つかりました</div>
+          <Button variant="outline" size="sm" className="gap-1">
+            <FileDown className="h-4 w-4" />
+            CSVエクスポート
           </Button>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>検索条件</CardTitle>
-            <CardDescription>検索条件を指定して、ESGデータを絞り込みます</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">キーワード</label>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="タイトル、提出者で検索..."
-                    className="pl-8"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Scope</label>
-                <Select value={selectedScope} onValueChange={setSelectedScope}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Scopeを選択" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    <SelectItem value="scope1">Scope 1</SelectItem>
-                    <SelectItem value="scope2">Scope 2</SelectItem>
-                    <SelectItem value="scope3">Scope 3</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">カテゴリ</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="カテゴリを選択" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    <SelectItem value="energy">エネルギー</SelectItem>
-                    <SelectItem value="water">水</SelectItem>
-                    <SelectItem value="waste">廃棄物</SelectItem>
-                    <SelectItem value="transport">輸送</SelectItem>
-                    <SelectItem value="procurement">調達</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">拠点</label>
-                <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="拠点を選択" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    <SelectItem value="tokyo">東京本社</SelectItem>
-                    <SelectItem value="osaka">大阪支社</SelectItem>
-                    <SelectItem value="nagoya">名古屋工場</SelectItem>
-                    <SelectItem value="fukuoka">福岡営業所</SelectItem>
-                    <SelectItem value="sapporo">札幌営業所</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">対象期間</label>
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="期間を選択" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    <SelectItem value="2023Q1">2023年 Q1</SelectItem>
-                    <SelectItem value="2023Q2">2023年 Q2</SelectItem>
-                    <SelectItem value="2023Q3">2023年 Q3</SelectItem>
-                    <SelectItem value="2023Q4">2023年 Q4</SelectItem>
-                    <SelectItem value="2023FY">2023年度 通年</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">ステータス</label>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="ステータスを選択" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
-                    <SelectItem value="draft">下書き</SelectItem>
-                    <SelectItem value="pending">承認待ち</SelectItem>
-                    <SelectItem value="approved">承認済み</SelectItem>
-                    <SelectItem value="rejected">差戻し</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="rounded-md border bg-white">
-          <div className="flex justify-between items-center p-4 border-b">
-            <div className="text-sm text-muted-foreground">{filteredData.length}件のデータが見つかりました</div>
-            <Button variant="outline" size="sm" className="gap-1">
-              <FileDown className="h-4 w-4" />
-              CSVエクスポート
-            </Button>
-          </div>
-          <Table>
-            <TableHeader>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>タイトル</TableHead>
+              <TableHead>提出者</TableHead>
+              <TableHead>Scope</TableHead>
+              <TableHead>カテゴリ</TableHead>
+              <TableHead>拠点</TableHead>
+              <TableHead>期間</TableHead>
+              <TableHead>排出量 (t-CO2)</TableHead>
+              <TableHead>ステータス</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length === 0 ? (
               <TableRow>
-                <TableHead>タイトル</TableHead>
-                <TableHead>提出者</TableHead>
-                <TableHead>Scope</TableHead>
-                <TableHead>カテゴリ</TableHead>
-                <TableHead>拠点</TableHead>
-                <TableHead>期間</TableHead>
-                <TableHead>排出量 (t-CO2)</TableHead>
-                <TableHead>ステータス</TableHead>
+                <TableCell colSpan={8} className="text-center py-6">
+                  条件に一致するデータがありません
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedData.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-6">
-                    条件に一致するデータがありません
+            ) : (
+              paginatedData.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.title}</TableCell>
+                  <TableCell>{item.submitter}</TableCell>
+                  <TableCell>
+                    {item.scope === "scope1" && "Scope 1"}
+                    {item.scope === "scope2" && "Scope 2"}
+                    {item.scope === "scope3" && "Scope 3"}
+                  </TableCell>
+                  <TableCell>
+                    {item.category === "energy" && "エネルギー"}
+                    {item.category === "water" && "水"}
+                    {item.category === "waste" && "廃棄物"}
+                    {item.category === "transport" && "輸送"}
+                    {item.category === "procurement" && "調達"}
+                  </TableCell>
+                  <TableCell>
+                    {item.location === "tokyo" && "東京本社"}
+                    {item.location === "osaka" && "大阪支社"}
+                    {item.location === "nagoya" && "名古屋工場"}
+                    {item.location === "fukuoka" && "福岡営業所"}
+                    {item.location === "sapporo" && "札幌営業所"}
+                  </TableCell>
+                  <TableCell>
+                    {item.period === "2023Q1" && "2023年 Q1"}
+                    {item.period === "2023Q2" && "2023年 Q2"}
+                    {item.period === "2023Q3" && "2023年 Q3"}
+                    {item.period === "2023Q4" && "2023年 Q4"}
+                    {item.period === "2023FY" && "2023年度 通年"}
+                  </TableCell>
+                  <TableCell>{item.calculatedEmission.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <StatusBadge status={item.status as any} />
                   </TableCell>
                 </TableRow>
-              ) : (
-                paginatedData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.title}</TableCell>
-                    <TableCell>{item.submitter}</TableCell>
-                    <TableCell>
-                      {item.scope === "scope1" && "Scope 1"}
-                      {item.scope === "scope2" && "Scope 2"}
-                      {item.scope === "scope3" && "Scope 3"}
-                    </TableCell>
-                    <TableCell>
-                      {item.category === "energy" && "エネルギー"}
-                      {item.category === "water" && "水"}
-                      {item.category === "waste" && "廃棄物"}
-                      {item.category === "transport" && "輸送"}
-                      {item.category === "procurement" && "調達"}
-                    </TableCell>
-                    <TableCell>
-                      {item.location === "tokyo" && "東京本社"}
-                      {item.location === "osaka" && "大阪支社"}
-                      {item.location === "nagoya" && "名古屋工場"}
-                      {item.location === "fukuoka" && "福岡営業所"}
-                      {item.location === "sapporo" && "札幌営業所"}
-                    </TableCell>
-                    <TableCell>
-                      {item.period === "2023Q1" && "2023年 Q1"}
-                      {item.period === "2023Q2" && "2023年 Q2"}
-                      {item.period === "2023Q3" && "2023年 Q3"}
-                      {item.period === "2023Q4" && "2023年 Q4"}
-                      {item.period === "2023FY" && "2023年度 通年"}
-                    </TableCell>
-                    <TableCell>{item.calculatedEmission.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={item.status as any} />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-          {totalPages > 1 && (
-            <div className="p-4 border-t">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        if (currentPage > 1) handlePageChange(currentPage - 1)
-                      }}
-                      className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: totalPages }).map((_, index) => {
-                    const page = index + 1
-                    // 現在のページの前後2ページまでと最初と最後のページを表示
-                    if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault()
-                              handlePageChange(page)
-                            }}
-                            isActive={page === currentPage}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      )
-                    }
-                    // 省略記号を表示（前後の省略記号が重複しないように）
-                    if ((page === 2 && currentPage > 3) || (page === totalPages - 1 && currentPage < totalPages - 2)) {
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationEllipsis />
-                        </PaginationItem>
-                      )
-                    }
-                    return null
-                  })}
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        if (currentPage < totalPages) handlePageChange(currentPage + 1)
-                      }}
-                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        {totalPages > 1 && (
+          <div className="p-4 border-t">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (currentPage > 1) handlePageChange(currentPage - 1)
+                    }}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+                {Array.from({ length: totalPages }).map((_, index) => {
+                  const page = index + 1
+                  // 現在のページの前後2ページまでと最初と最後のページを表示
+                  if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handlePageChange(page)
+                          }}
+                          isActive={page === currentPage}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  }
+                  // 省略記号を表示（前後の省略記号が重複しないように）
+                  if ((page === 2 && currentPage > 3) || (page === totalPages - 1 && currentPage < totalPages - 2)) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )
+                  }
+                  return null
+                })}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      if (currentPage < totalPages) handlePageChange(currentPage + 1)
+                    }}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
-    </DashboardLayout>
+    </div>
   )
 }
