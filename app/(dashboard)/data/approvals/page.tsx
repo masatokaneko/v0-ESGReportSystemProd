@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { StatusBadge } from "@/components/ui/status-badge"
-import { useToast } from "@/components/ui/use-toast"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react";
+// import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { StatusBadge } from "@/components/ui/status-badge";
+import { useToast } from "@/components/ui/use-toast";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   Dialog,
@@ -15,14 +15,34 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { FileIcon, Search, CheckCircle, XCircle, FileText } from "lucide-react"
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FileIcon, Search, CheckCircle, XCircle, FileText } from "lucide-react";
 
 // モックデータ
 const mockApprovals = [
@@ -89,29 +109,29 @@ const mockApprovals = [
       { name: "マニフェスト.pdf", size: 2340000 },
     ],
   },
-]
+];
 
 const commentSchema = z.object({
   comment: z.string().min(1, { message: "コメントを入力してください" }),
-})
+});
 
-type CommentFormValues = z.infer<typeof commentSchema>
+type CommentFormValues = z.infer<typeof commentSchema>;
 
 export default function ApprovalsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedFilter, setSelectedFilter] = useState("pending")
-  const [departmentFilter, setDepartmentFilter] = useState("all")
-  const [selectedItem, setSelectedItem] = useState<any | null>(null)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [approvalData, setApprovalData] = useState(mockApprovals)
-  const { toast } = useToast()
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("pending");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [approvalData, setApprovalData] = useState(mockApprovals);
+  const { toast } = useToast();
 
   const form = useForm<CommentFormValues>({
     resolver: zodResolver(commentSchema),
     defaultValues: {
       comment: "",
     },
-  })
+  });
 
   const filteredApprovals = approvalData.filter((item) => {
     const matchesSearch =
@@ -120,60 +140,66 @@ export default function ApprovalsPage() {
       item.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.activityType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.submitter.toLowerCase().includes(searchTerm.toLowerCase())
+      item.submitter.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = selectedFilter === "all" || item.status === selectedFilter
-    const matchesDepartment = departmentFilter === "all" || item.department === departmentFilter
+    const matchesStatus =
+      selectedFilter === "all" || item.status === selectedFilter;
+    const matchesDepartment =
+      departmentFilter === "all" || item.department === departmentFilter;
 
-    return matchesSearch && matchesStatus && matchesDepartment
-  })
+    return matchesSearch && matchesStatus && matchesDepartment;
+  });
 
   const handleViewDetails = (item: any) => {
-    setSelectedItem(item)
-    setIsDialogOpen(true)
-  }
+    setSelectedItem(item);
+    setIsDialogOpen(true);
+  };
 
   const handleApprove = () => {
     const updatedData = approvalData.map((item) =>
-      item.id === selectedItem.id ? { ...item, status: "approved" } : item,
-    )
+      item.id === selectedItem.id ? { ...item, status: "approved" } : item
+    );
 
-    setApprovalData(updatedData)
+    setApprovalData(updatedData);
 
     toast({
       title: "承認完了",
       description: `${selectedItem.id}を承認しました`,
-    })
-    setIsDialogOpen(false)
-    setSelectedItem(null)
-    form.reset()
-  }
+    });
+    setIsDialogOpen(false);
+    setSelectedItem(null);
+    form.reset();
+  };
 
   const handleReject = (data: CommentFormValues) => {
     const updatedData = approvalData.map((item) =>
-      item.id === selectedItem.id ? { ...item, status: "rejected", rejectReason: data.comment } : item,
-    )
+      item.id === selectedItem.id
+        ? { ...item, status: "rejected", rejectReason: data.comment }
+        : item
+    );
 
-    setApprovalData(updatedData)
+    setApprovalData(updatedData);
 
     toast({
       title: "差戻し完了",
       description: `${selectedItem.id}を差戻しました`,
-    })
-    setIsDialogOpen(false)
-    setSelectedItem(null)
-    form.reset()
-  }
+    });
+    setIsDialogOpen(false);
+    setSelectedItem(null);
+    form.reset();
+  };
 
   return (
-    <DashboardLayout allowedRoles={["reviewer", "admin"]}>
+    <div>
       <div className="flex flex-col gap-6">
         <h1 className="text-2xl font-bold">データ承認</h1>
 
         <div className="bg-white rounded-md shadow-sm">
           <div className="p-4 border-b">
             <h2 className="text-lg font-semibold">承認待ちデータ一覧</h2>
-            <p className="text-sm text-muted-foreground">登録されたESGデータを確認し、承認または差戻しを行います。</p>
+            <p className="text-sm text-muted-foreground">
+              登録されたESGデータを確認し、承認または差戻しを行います。
+            </p>
           </div>
 
           <div className="p-4 flex flex-col md:flex-row gap-4">
@@ -200,7 +226,10 @@ export default function ApprovalsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+              <Select
+                value={departmentFilter}
+                onValueChange={setDepartmentFilter}
+              >
                 <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="部門" />
                 </SelectTrigger>
@@ -257,7 +286,11 @@ export default function ApprovalsPage() {
                       <TableCell>{item.submitter}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleViewDetails(item)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleViewDetails(item)}
+                          >
                             <FileText className="h-4 w-4" />
                           </Button>
                           {item.status === "pending" && (
@@ -267,8 +300,8 @@ export default function ApprovalsPage() {
                                 size="icon"
                                 className="text-status-approved"
                                 onClick={() => {
-                                  setSelectedItem(item)
-                                  handleApprove()
+                                  setSelectedItem(item);
+                                  handleApprove();
                                 }}
                               >
                                 <CheckCircle className="h-4 w-4" />
@@ -278,8 +311,8 @@ export default function ApprovalsPage() {
                                 size="icon"
                                 className="text-status-rejected"
                                 onClick={() => {
-                                  setSelectedItem(item)
-                                  setIsDialogOpen(true)
+                                  setSelectedItem(item);
+                                  setIsDialogOpen(true);
                                 }}
                               >
                                 <XCircle className="h-4 w-4" />
@@ -316,19 +349,29 @@ export default function ApprovalsPage() {
                 <div className="space-y-2">
                   <div className="grid grid-cols-3 gap-1">
                     <div className="text-sm text-muted-foreground">拠点:</div>
-                    <div className="text-sm col-span-2">{selectedItem.location}</div>
+                    <div className="text-sm col-span-2">
+                      {selectedItem.location}
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-1">
                     <div className="text-sm text-muted-foreground">部門:</div>
-                    <div className="text-sm col-span-2">{selectedItem.department}</div>
+                    <div className="text-sm col-span-2">
+                      {selectedItem.department}
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-1">
-                    <div className="text-sm text-muted-foreground">活動種類:</div>
-                    <div className="text-sm col-span-2">{selectedItem.activityType}</div>
+                    <div className="text-sm text-muted-foreground">
+                      活動種類:
+                    </div>
+                    <div className="text-sm col-span-2">
+                      {selectedItem.activityType}
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-1">
                     <div className="text-sm text-muted-foreground">日付:</div>
-                    <div className="text-sm col-span-2">{selectedItem.date}</div>
+                    <div className="text-sm col-span-2">
+                      {selectedItem.date}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -343,7 +386,9 @@ export default function ApprovalsPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-3 gap-1">
-                    <div className="text-sm text-muted-foreground">ステータス:</div>
+                    <div className="text-sm text-muted-foreground">
+                      ステータス:
+                    </div>
                     <div className="text-sm col-span-2">
                       <StatusBadge status={selectedItem.status as any} />
                     </div>
@@ -354,7 +399,9 @@ export default function ApprovalsPage() {
 
             <div className="py-2">
               <h3 className="text-sm font-medium mb-2">備考</h3>
-              <div className="text-sm bg-secondary p-3 rounded-md">{selectedItem.notes || "備考なし"}</div>
+              <div className="text-sm bg-secondary p-3 rounded-md">
+                {selectedItem.notes || "備考なし"}
+              </div>
             </div>
 
             {selectedItem.files && selectedItem.files.length > 0 && (
@@ -362,11 +409,16 @@ export default function ApprovalsPage() {
                 <h3 className="text-sm font-medium mb-2">添付ファイル</h3>
                 <div className="space-y-2">
                   {selectedItem.files.map((file: any, index: number) => (
-                    <div key={index} className="flex items-center p-2 border rounded-md">
+                    <div
+                      key={index}
+                      className="flex items-center p-2 border rounded-md"
+                    >
                       <FileIcon className="h-5 w-5 text-primary mr-2" />
                       <div className="flex-1">
                         <div className="text-sm font-medium">{file.name}</div>
-                        <div className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                        <div className="text-xs text-muted-foreground">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
                       </div>
                       <Button variant="outline" size="sm">
                         表示
@@ -379,7 +431,10 @@ export default function ApprovalsPage() {
 
             {selectedItem.status === "pending" && (
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleReject)} className="space-y-4">
+                <form
+                  onSubmit={form.handleSubmit(handleReject)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={form.control}
                     name="comment"
@@ -387,7 +442,10 @@ export default function ApprovalsPage() {
                       <FormItem>
                         <FormLabel>コメント</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="承認または差戻しの理由を入力してください" {...field} />
+                          <Textarea
+                            placeholder="承認または差戻しの理由を入力してください"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -395,14 +453,25 @@ export default function ApprovalsPage() {
                   />
 
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDialogOpen(false)}
+                    >
                       キャンセル
                     </Button>
-                    <Button variant="destructive" type="submit" className="gap-1">
+                    <Button
+                      variant="destructive"
+                      type="submit"
+                      className="gap-1"
+                    >
                       <XCircle className="h-4 w-4" />
                       差戻し
                     </Button>
-                    <Button type="button" onClick={handleApprove} className="gap-1">
+                    <Button
+                      type="button"
+                      onClick={handleApprove}
+                      className="gap-1"
+                    >
                       <CheckCircle className="h-4 w-4" />
                       承認
                     </Button>
@@ -413,7 +482,10 @@ export default function ApprovalsPage() {
 
             {selectedItem.status !== "pending" && (
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsDialogOpen(false)}
+                >
                   閉じる
                 </Button>
               </DialogFooter>
@@ -421,6 +493,6 @@ export default function ApprovalsPage() {
           </DialogContent>
         </Dialog>
       )}
-    </DashboardLayout>
-  )
+    </div>
+  );
 }

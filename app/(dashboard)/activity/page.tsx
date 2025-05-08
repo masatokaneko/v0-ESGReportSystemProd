@@ -3,12 +3,19 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Pencil, Trash, Plus } from "lucide-react";
-import { EditDialog } from "./EditDialog"; // 後述
+import { EditDialog } from "./edit-dialog"; // 後述
 import { format } from "date-fns";
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function ActivityPage() {
   const { data, mutate } = useSWR("/api/activity", fetcher);
@@ -55,14 +62,26 @@ export default function ActivityPage() {
         </TableHeader>
         <TableBody>
           {data.map((row: any) => (
-            <TableRow key={row.id} className="cursor-pointer hover:bg-muted" onClick={() => handleEdit(row)}>
+            <TableRow
+              key={row.id}
+              className="cursor-pointer hover:bg-muted"
+              onClick={() => handleEdit(row)}
+            >
               <TableCell>{format(new Date(row.date), "yyyy-MM-dd")}</TableCell>
               <TableCell>{row.description}</TableCell>
               <TableCell>{row.amount}</TableCell>
               <TableCell>{row.emissionFactor?.unit}</TableCell>
               <TableCell>{row.emissionFactor?.factor}</TableCell>
-              <TableCell onClick={e => { e.stopPropagation(); handleDelete(row.id); }}>
-                <Trash className="text-red-500 hover:text-red-700 cursor-pointer" size={18} />
+              <TableCell
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(row.id);
+                }}
+              >
+                <Trash
+                  className="text-red-500 hover:text-red-700 cursor-pointer"
+                  size={18}
+                />
               </TableCell>
             </TableRow>
           ))}
@@ -79,4 +98,4 @@ export default function ActivityPage() {
       />
     </div>
   );
-} 
+}
