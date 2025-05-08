@@ -1,22 +1,40 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Trash2, Edit } from "lucide-react"
+import { useState } from "react";
+// import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus, Trash2, Edit } from "lucide-react";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("emission-factors")
+  const [activeTab, setActiveTab] = useState("emission-factors");
 
   return (
-    <DashboardLayout allowedRoles={["admin"]}>
+    <div>
       <div className="flex flex-col gap-6">
         <h1 className="text-2xl font-bold">システム設定</h1>
 
-        <Tabs defaultValue="emission-factors" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          defaultValue="emission-factors"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="emission-factors">原単位</TabsTrigger>
             <TabsTrigger value="users">ユーザー</TabsTrigger>
@@ -27,7 +45,9 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>排出係数設定</CardTitle>
-                <CardDescription>ESG計算に使用する排出係数を管理します</CardDescription>
+                <CardDescription>
+                  ESG計算に使用する排出係数を管理します
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-end mb-4">
@@ -127,7 +147,9 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>ユーザー管理</CardTitle>
-                <CardDescription>システムユーザーの追加・編集・削除を行います</CardDescription>
+                <CardDescription>
+                  システムユーザーの追加・編集・削除を行います
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-end mb-4">
@@ -300,6 +322,6 @@ export default function SettingsPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
-  )
+    </div>
+  );
 }

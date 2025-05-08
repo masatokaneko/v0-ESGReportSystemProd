@@ -1,16 +1,29 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/components/ui/use-toast"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import { useState } from "react";
+// import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +31,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Upload,
   FileSpreadsheet,
@@ -31,17 +55,17 @@ import {
   X,
   AlertTriangle,
   Trash2,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function CsvUploadPage() {
-  const [activeTab, setActiveTab] = useState("upload")
-  const [isDragging, setIsDragging] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [isUploading, setIsUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [isMappingDialogOpen, setIsMappingDialogOpen] = useState(false)
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
-  const { toast } = useToast()
+  const [activeTab, setActiveTab] = useState("upload");
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isMappingDialogOpen, setIsMappingDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   // モックデータ - インポート履歴
   const importHistory = [
@@ -85,7 +109,7 @@ export default function CsvUploadPage() {
       status: "success",
       sourceSystem: "SAP S/4HANA",
     },
-  ]
+  ];
 
   // モックデータ - CSVプレビュー
   const csvPreviewData = {
@@ -98,7 +122,7 @@ export default function CsvUploadPage() {
       ["2023-03-15", "東京本社", "電力", "48000", "kWh", ""],
       ["2023-03-31", "大阪支社", "ガス", "2700", "m3", ""],
     ],
-  }
+  };
 
   // モックデータ - マッピング
   const mappingFields = [
@@ -108,26 +132,26 @@ export default function CsvUploadPage() {
     { source: "数値", target: "value", required: true },
     { source: "単位", target: "unit", required: true },
     { source: "備考", target: "notes", required: false },
-  ]
+  ];
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = () => {
-    setIsDragging(false)
-  }
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    setIsDragging(false)
+    e.preventDefault();
+    setIsDragging(false);
 
-    const files = e.dataTransfer.files
+    const files = e.dataTransfer.files;
     if (files.length > 0) {
-      handleFileSelect(files[0])
+      handleFileSelect(files[0]);
     }
-  }
+  };
 
   const handleFileSelect = (file: File) => {
     // CSVファイルのみ許可
@@ -136,98 +160,107 @@ export default function CsvUploadPage() {
         variant: "destructive",
         title: "ファイル形式エラー",
         description: "CSVファイルのみアップロード可能です",
-      })
-      return
+      });
+      return;
     }
 
-    setSelectedFile(file)
-  }
+    setSelectedFile(file);
+  };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
+    const files = e.target.files;
     if (files && files.length > 0) {
-      handleFileSelect(files[0])
+      handleFileSelect(files[0]);
     }
-  }
+  };
 
   const handleUpload = () => {
-    if (!selectedFile) return
+    if (!selectedFile) return;
 
-    setIsUploading(true)
-    setUploadProgress(0)
+    setIsUploading(true);
+    setUploadProgress(0);
 
     // アップロード進捗のシミュレーション
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 100) {
-          clearInterval(interval)
-          setIsUploading(false)
-          setIsMappingDialogOpen(true)
-          return 100
+          clearInterval(interval);
+          setIsUploading(false);
+          setIsMappingDialogOpen(true);
+          return 100;
         }
-        return prev + 10
-      })
-    }, 300)
-  }
+        return prev + 10;
+      });
+    }, 300);
+  };
 
   const handleConfirmMapping = () => {
-    setIsMappingDialogOpen(false)
-    setIsConfirmDialogOpen(true)
-  }
+    setIsMappingDialogOpen(false);
+    setIsConfirmDialogOpen(true);
+  };
 
   const handleConfirmImport = () => {
-    setIsConfirmDialogOpen(false)
+    setIsConfirmDialogOpen(false);
 
     toast({
       title: "インポート完了",
       description: "CSVデータが正常にインポートされました",
-    })
+    });
 
-    setSelectedFile(null)
-    setUploadProgress(0)
-    setActiveTab("history")
-  }
+    setSelectedFile(null);
+    setUploadProgress(0);
+    setActiveTab("history");
+  };
 
   const handleCancelImport = () => {
-    setIsConfirmDialogOpen(false)
-    setSelectedFile(null)
-    setUploadProgress(0)
-  }
+    setIsConfirmDialogOpen(false);
+    setSelectedFile(null);
+    setUploadProgress(0);
+  };
 
   const handleDeleteImport = (id: string) => {
     toast({
       title: "インポート削除",
       description: "選択したインポート履歴が削除されました",
-    })
-  }
+    });
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "success":
         return (
-          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+          <Badge
+            variant="outline"
+            className="bg-green-100 text-green-800 border-green-200"
+          >
             成功
           </Badge>
-        )
+        );
       case "partial":
         return (
-          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+          <Badge
+            variant="outline"
+            className="bg-yellow-100 text-yellow-800 border-yellow-200"
+          >
             部分成功
           </Badge>
-        )
+        );
       case "error":
         return (
-          <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+          <Badge
+            variant="outline"
+            className="bg-red-100 text-red-800 border-red-200"
+          >
             エラー
           </Badge>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
-    <DashboardLayout>
+    <div>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h1 className="text-2xl font-bold">CSVアップロード</h1>
@@ -264,7 +297,12 @@ export default function CsvUploadPage() {
           </DropdownMenu>
         </div>
 
-        <Tabs defaultValue="upload" value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs
+          defaultValue="upload"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
           <TabsList className="grid grid-cols-2 w-full">
             <TabsTrigger value="upload">アップロード</TabsTrigger>
             <TabsTrigger value="history">インポート履歴</TabsTrigger>
@@ -274,7 +312,9 @@ export default function CsvUploadPage() {
             <Card>
               <CardHeader>
                 <CardTitle>CSVファイルのアップロード</CardTitle>
-                <CardDescription>ESGデータを含むCSVファイルをアップロードして一括登録します</CardDescription>
+                <CardDescription>
+                  ESGデータを含むCSVファイルをアップロードして一括登録します
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -293,8 +333,15 @@ export default function CsvUploadPage() {
                       <p className="text-sm font-medium">
                         CSVファイルをドラッグ＆ドロップするか、クリックして選択してください
                       </p>
-                      <p className="text-xs text-gray-500">CSVファイル（最大10MB）</p>
-                      <Button variant="outline" onClick={() => document.getElementById("file-input")?.click()}>
+                      <p className="text-xs text-gray-500">
+                        CSVファイル（最大10MB）
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() =>
+                          document.getElementById("file-input")?.click()
+                        }
+                      >
                         ファイルを選択
                       </Button>
                       <input
@@ -313,11 +360,19 @@ export default function CsvUploadPage() {
                         <div className="flex items-center">
                           <FileSpreadsheet className="h-5 w-5 text-primary mr-2" />
                           <div>
-                            <p className="text-sm font-medium">{selectedFile.name}</p>
-                            <p className="text-xs text-muted-foreground">{(selectedFile.size / 1024).toFixed(0)}KB</p>
+                            <p className="text-sm font-medium">
+                              {selectedFile.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {(selectedFile.size / 1024).toFixed(0)}KB
+                            </p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedFile(null)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSelectedFile(null)}
+                        >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
@@ -346,7 +401,9 @@ export default function CsvUploadPage() {
             <Card>
               <CardHeader>
                 <CardTitle>インポート履歴</CardTitle>
-                <CardDescription>過去にインポートしたCSVファイルの履歴を表示します</CardDescription>
+                <CardDescription>
+                  過去にインポートしたCSVファイルの履歴を表示します
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -374,7 +431,11 @@ export default function CsvUploadPage() {
                         <TableCell>{getStatusBadge(item.status)}</TableCell>
                         <TableCell>{item.sourceSystem}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteImport(item.id)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteImport(item.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </TableCell>
@@ -393,7 +454,9 @@ export default function CsvUploadPage() {
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>CSVマッピング</DialogTitle>
-            <DialogDescription>CSVの列とシステムのフィールドをマッピングしてください</DialogDescription>
+            <DialogDescription>
+              CSVの列とシステムのフィールドをマッピングしてください
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -425,7 +488,9 @@ export default function CsvUploadPage() {
                   <div className="w-1/3">
                     <div className="flex items-center p-2 border rounded-md bg-secondary">
                       <span className="text-sm">{field.source}</span>
-                      {field.required && <span className="text-red-500 ml-1">*</span>}
+                      {field.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </div>
                   </div>
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -451,7 +516,10 @@ export default function CsvUploadPage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsMappingDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsMappingDialogOpen(false)}
+            >
               キャンセル
             </Button>
             <Button onClick={handleConfirmMapping}>マッピングを確認</Button>
@@ -464,7 +532,9 @@ export default function CsvUploadPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>インポート確認</DialogTitle>
-            <DialogDescription>以下の内容でCSVデータをインポートします</DialogDescription>
+            <DialogDescription>
+              以下の内容でCSVデータをインポートします
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
@@ -491,7 +561,9 @@ export default function CsvUploadPage() {
                 <AlertTriangle className="h-5 w-5 text-yellow-500" />
                 <span className="font-medium">警告</span>
               </div>
-              <p className="text-sm pl-7">4件のレコードにエラーがあります。エラーのあるレコードはスキップされます。</p>
+              <p className="text-sm pl-7">
+                4件のレコードにエラーがあります。エラーのあるレコードはスキップされます。
+              </p>
             </div>
           </div>
 
@@ -503,6 +575,6 @@ export default function CsvUploadPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
-  )
+    </div>
+  );
 }

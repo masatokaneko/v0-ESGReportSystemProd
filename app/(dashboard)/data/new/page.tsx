@@ -1,20 +1,40 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { z } from "zod"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { FileDropZone } from "@/components/ui/file-drop-zone"
-import { useToast } from "@/components/ui/use-toast"
-import { Loader2 } from "lucide-react"
+import { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+// import { DashboardLayout } from "@/components/layout/dashboard-layout"
+import { FileDropZone } from "@/components/ui/file-drop-zone";
+import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const dataEntrySchema = z.object({
   title: z.string().min(1, { message: "タイトルを入力してください" }),
@@ -26,16 +46,18 @@ const dataEntrySchema = z.object({
   period: z.string().min(1, { message: "対象期間を選択してください" }),
   value: z.coerce.number().min(0, { message: "0以上の数値を入力してください" }),
   unit: z.string().min(1, { message: "単位を選択してください" }),
-  emissionFactor: z.coerce.number().min(0, { message: "0以上の数値を入力してください" }),
+  emissionFactor: z.coerce
+    .number()
+    .min(0, { message: "0以上の数値を入力してください" }),
   notes: z.string().optional(),
-})
+});
 
-type DataEntryFormValues = z.infer<typeof dataEntrySchema>
+type DataEntryFormValues = z.infer<typeof dataEntrySchema>;
 
 export default function DataEntryPage() {
-  const [files, setFiles] = useState<File[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const { toast } = useToast()
+  const [files, setFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<DataEntryFormValues>({
     resolver: zodResolver(dataEntrySchema),
@@ -50,59 +72,64 @@ export default function DataEntryPage() {
       emissionFactor: 0,
       notes: "",
     },
-  })
+  });
 
-  const { watch } = form
-  const value = watch("value")
-  const emissionFactor = watch("emissionFactor")
-  const calculatedEmission = value * emissionFactor
+  const { watch } = form;
+  const value = watch("value");
+  const emissionFactor = watch("emissionFactor");
+  const calculatedEmission = value * emissionFactor;
 
   const onSubmit = async (data: DataEntryFormValues) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       // 実際の実装ではAPIエンドポイントにデータを送信
-      console.log("送信データ:", { ...data, files, calculatedEmission })
+      console.log("送信データ:", { ...data, files, calculatedEmission });
 
       // 送信成功を模擬
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       toast({
         title: "データ登録完了",
         description: "データが正常に登録されました。承認待ちとなります。",
-      })
+      });
 
       // フォームリセット
-      form.reset()
-      setFiles([])
+      form.reset();
+      setFiles([]);
     } catch (error) {
-      console.error("データ登録エラー:", error)
+      console.error("データ登録エラー:", error);
       toast({
         variant: "destructive",
         title: "エラー",
         description: "データ登録中にエラーが発生しました。再度お試しください。",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleFilesSelected = (selectedFiles: File[]) => {
-    setFiles(selectedFiles)
-  }
+    setFiles(selectedFiles);
+  };
 
   return (
-    <DashboardLayout allowedRoles={["inputer", "reviewer", "admin"]}>
+    <div>
       <div className="flex flex-col gap-6">
         <h1 className="text-2xl font-bold">ESGデータ登録</h1>
 
         <Card>
           <CardHeader>
             <CardTitle>新規データ入力</CardTitle>
-            <CardDescription>ESG関連データを入力し、承認プロセスに送信します</CardDescription>
+            <CardDescription>
+              ESG関連データを入力し、承認プロセスに送信します
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -124,16 +151,25 @@ export default function DataEntryPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Scope</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Scopeを選択" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="scope1">Scope 1 (直接排出)</SelectItem>
-                            <SelectItem value="scope2">Scope 2 (間接排出)</SelectItem>
-                            <SelectItem value="scope3">Scope 3 (その他の間接排出)</SelectItem>
+                            <SelectItem value="scope1">
+                              Scope 1 (直接排出)
+                            </SelectItem>
+                            <SelectItem value="scope2">
+                              Scope 2 (間接排出)
+                            </SelectItem>
+                            <SelectItem value="scope3">
+                              Scope 3 (その他の間接排出)
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -147,7 +183,10 @@ export default function DataEntryPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>カテゴリ</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="カテゴリを選択" />
@@ -172,7 +211,10 @@ export default function DataEntryPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>拠点</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="拠点を選択" />
@@ -197,7 +239,10 @@ export default function DataEntryPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>対象期間</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="対象期間を選択" />
@@ -208,7 +253,9 @@ export default function DataEntryPage() {
                             <SelectItem value="2023Q2">2023年 Q2</SelectItem>
                             <SelectItem value="2023Q3">2023年 Q3</SelectItem>
                             <SelectItem value="2023Q4">2023年 Q4</SelectItem>
-                            <SelectItem value="2023FY">2023年度 通年</SelectItem>
+                            <SelectItem value="2023FY">
+                              2023年度 通年
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -236,7 +283,10 @@ export default function DataEntryPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>単位</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="単位を選択" />
@@ -262,9 +312,16 @@ export default function DataEntryPage() {
                       <FormItem>
                         <FormLabel>排出係数</FormLabel>
                         <FormControl>
-                          <Input type="number" min="0" step="0.001" {...field} />
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.001"
+                            {...field}
+                          />
                         </FormControl>
-                        <FormDescription>単位あたりのCO2排出係数 (t-CO2/単位)</FormDescription>
+                        <FormDescription>
+                          単位あたりのCO2排出係数 (t-CO2/単位)
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -286,7 +343,11 @@ export default function DataEntryPage() {
                     <FormItem>
                       <FormLabel>備考</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="補足情報があれば入力してください" className="min-h-[100px]" {...field} />
+                        <Textarea
+                          placeholder="補足情報があれば入力してください"
+                          className="min-h-[100px]"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -322,6 +383,6 @@ export default function DataEntryPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
-  )
+    </div>
+  );
 }
